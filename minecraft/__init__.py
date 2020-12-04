@@ -8,34 +8,28 @@ import io
 s = None
 
 async def fetch_text(url):
-	print('fetching text...', url)
 	global s
 	if s is None:
 		s = aiohttp.ClientSession()
 
 	async with s.get(url) as r:
 		data = await r.text()
-	print('fetched text')
 	return data
 
 async def fetch_json(url):
-	print('fetching json...', url)
 	global s
 	if s is None:
 		s = aiohttp.ClientSession()
 	async with s.get(url) as r:
 		data = await r.json()
-	print('fetched json')
 	return data
 
 async def fetch_bytes(url):
-	print('fetching bytes...', url)
 	global s
 	if s is None:
 		s = aiohttp.ClientSession()
 	async with s.get(url) as r:
 		data = await r.read()
-	print('fetched bytes')
 	return data
 
 
