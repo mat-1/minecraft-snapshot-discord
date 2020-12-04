@@ -199,6 +199,7 @@ class MinecraftDownloadableAsset():
 	def __init__(self, filename, hash):
 		self.hash = hash
 		self.filename = filename
+		self.bytes = None
 
 	async def download(self):
 		if self.bytes:
@@ -212,7 +213,7 @@ class MinecraftDownloadableAsset():
 		return asset_bytes
 
 	def __repr__(self):
-		return f'<{self.dir}>'
+		return f'<{self.filename}>'
 	
 	def __hash__(self):
 		return hash(self.hash)
@@ -694,6 +695,7 @@ async def diff_versions(old_version_id, new_version_id, old_downloadable_assets)
 
 	# AssetsDiff
 	yield new_jar.assets.diff(old_jar.assets)
+	# LangDiff
 	yield new_jar.assets.lang.diff(old_jar.assets.lang)
 
 	new_downloadable_assets = await new_packages.get_downloadable_assets()
