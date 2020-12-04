@@ -677,27 +677,30 @@ async def diff_versions(old_version_id, new_version_id, old_downloadable_assets)
 	new_version = await MinecraftVersion.version_from_id(new_version_id)
 	old_version = await MinecraftVersion.version_from_id(old_version_id)
 
+	# VersionDiff
 	yield VersionDiff(new_version, old_version)
 
 	new_packages = await new_version.get_packages()
 	old_packages = await old_version.get_packages()
 
-	# new_mappings = await new_packages.get_client_mappings()
-	# old_mappings = await old_packages.get_client_mappings()
+	new_mappings = await new_packages.get_client_mappings()
+	old_mappings = await old_packages.get_client_mappings()
 
-	# # MappingsDiff
-	# yield new_mappings.diff(old_mappings)
+	# MappingsDiff
+	yield new_mappings.diff(old_mappings)
 
-	# new_jar = await new_packages.get_jar_file()
-	# old_jar = await old_packages.get_jar_file()
+	new_jar = await new_packages.get_jar_file()
+	old_jar = await old_packages.get_jar_file()
 
-	# # AssetsDiff
-	# yield new_jar.assets.diff(old_jar.assets)
-	# yield new_jar.assets.lang.diff(old_jar.assets.lang)
+	# AssetsDiff
+	yield new_jar.assets.diff(old_jar.assets)
+	yield new_jar.assets.lang.diff(old_jar.assets.lang)
 
 	new_downloadable_assets = await new_packages.get_downloadable_assets()
 	old_downloadable_assets = await old_packages.get_downloadable_assets()
 	# old_downloadable_assets = MinecraftDownloadableAssets.downloadable_assets_from_objects(old_downloadable_assets)
+
+	# DownloadableAssetsDiff
 	yield new_downloadable_assets.diff(old_downloadable_assets)
 
 	await s.close()
