@@ -286,18 +286,27 @@ class MinecraftDownloadableAssets():
 	def downloadable_assets_from_objects(data):
 		assets = []
 		for asset_dir, asset_data in data.items():
-			asset_size = asset_data['size']
-			asset_hash = asset_data['hash']
+			if isinstance(asset_data, dict):
+				asset_size = asset_data['size']
+				asset_hash = asset_data['hash']
+			else:
+				# if it's not a dict, it was probably inputted with the format {dir: hash,}
+				asset_size = 0
+				asset_hash = asset_data
 
 			asset = MinecraftDownloadableAsset(filename=asset_dir, hash=asset_hash)
 
 			if asset.filename.startswith('minecraft/sounds/'):
 				assets.append(asset)
 			else:
-				# TODO: maybe also check for other interesting things here, such as panoramas and splash messages
 				pass
 		return MinecraftDownloadableAssets(assets=assets)
 
+	def get_assets_dict(self):
+		data = {}
+		for asset in self.assets:
+			data[asset.filename] = asset.hash
+		return data
 
 	@staticmethod
 	async def downloadable_assets_from_url(url):
