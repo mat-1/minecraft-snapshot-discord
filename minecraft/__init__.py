@@ -1,11 +1,8 @@
 import aiohttp
-import asyncio
 import zipfile
 import hashlib
 import json
-import os
 import io
-import re
 
 # s is set by fetch_text or fetch_json
 s = None
