@@ -127,7 +127,6 @@ async def main():
 
 			elif isinstance(difference, minecraft.AssetsDiff):
 				assets_diff = difference
-				await database.update_file_hashes(difference.new.get_assets_dict())
 				await make_assets_messages(difference, new_version_id)
 
 			elif isinstance(difference, minecraft.LangDiff):
@@ -135,6 +134,7 @@ async def main():
 
 			elif isinstance(difference, minecraft.DownloadableAssetsDiff):
 				downloadable_assets_diff = difference
+				await database.update_file_hashes(difference.new.get_assets_dict())
 				await make_downloadable_assets_messages(difference, new_version_id)
 
 		await summary.make_summary_messages(
