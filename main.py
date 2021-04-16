@@ -1,3 +1,4 @@
+import minecraft_blog
 import minecraft
 import database
 import asyncio
@@ -98,52 +99,68 @@ async def make_downloadable_assets_messages(downloadable_assets_diff, new_versio
 async def wait_for_new_version():
 	# sleep until there's a new update, check every 10 seconds :)
 	current_version = await database.get_version()
+	current_blog_title = await database.get_newest_blog_title()
+
 	while True:
 		latest_version = await minecraft.MinecraftVersion.get_latest_version()
+		latest_blog_title = await minecraft_blog.fetch_latest_blog_title()
+
+
 		if current_version != latest_version.id:
 			await database.update_version(latest_version.id)
-			return (current_version, latest_version.id)
+			return ('minecraft', current_version, latest_version.id)
+
+		if current_blog_title != latest_blog_title:
+			await database.update_newest_blog_title(latest_blog_title)
+			return ('blog', current_blog_title, latest_blog_title)
+
 		await asyncio.sleep(10)
+
 
 async def main():
 	while True:
-		old_version_id, new_version_id = await wait_for_new_version()
-		old_assets = await database.get_file_hashes()
+		update_type, old_version_id, new_version_id = await wait_for_new_version()
 
-		downloadable_assets_diff = None
-		mappings_diff = None
-		version_diff = None
-		assets_diff = None
-		lang_diff = None
+		if update_type == 'blog':
+			await webhook.execute_summary_webhook(f'https://www.minecraft.net/en-us/article/{new_version_id}')
 
-		async for difference in minecraft.diff_versions(old_version_id, new_version_id, old_assets):
-			if isinstance(difference, minecraft.VersionDiff):
-				version_diff = difference
-				await webhook.execute_summary_webhook(f'@everyone New version! **{difference.new.id}**')
+		elif update_type == 'minecraft':
+			old_assets = await database.get_file_hashes()
 
-			elif isinstance(difference, minecraft.MappingsDiff):
-				mappings_diff = difference
-				await make_mapping_messages(difference, new_version_id)
+			downloadable_assets_diff = None
+			mappings_diff = None
+			version_diff = None
+			assets_diff = None
+			lang_diff = None
 
-			elif isinstance(difference, minecraft.AssetsDiff):
-				assets_diff = difference
-				await make_assets_messages(difference, new_version_id)
+			async for difference in minecraft.diff_versions(old_version_id, new_version_id, old_assets):
+				if isinstance(difference, minecraft.VersionDiff):
+					version_diff = difference
+					await webhook.execute_summary_webhook(f'@everyone New version! **{difference.new.id}**')
 
-			elif isinstance(difference, minecraft.LangDiff):
-				lang_diff = difference
+				elif isinstance(difference, minecraft.MappingsDiff):
+					mappings_diff = difference
+					await make_mapping_messages(difference, new_version_id)
 
-			elif isinstance(difference, minecraft.DownloadableAssetsDiff):
-				downloadable_assets_diff = difference
-				await database.update_file_hashes(difference.new.get_assets_dict())
-				await make_downloadable_assets_messages(difference, new_version_id)
+				elif isinstance(difference, minecraft.AssetsDiff):
+					assets_diff = difference
+					await make_assets_messages(difference, new_version_id)
 
-		await summary.make_summary_messages(
-			version_diff=version_diff,
-			mappings_diff=mappings_diff,
-			assets_diff=assets_diff,
-			downloadable_assets_diff=downloadable_assets_diff,
-			lang_diff=lang_diff
-		)
-		
+				elif isinstance(difference, minecraft.LangDiff):
+					lang_diff = difference
+
+				elif isinstance(difference, minecraft.DownloadableAssetsDiff):
+					downloadable_assets_diff = difference
+					await database.update_file_hashes(difference.new.get_assets_dict())
+					await make_downloadable_assets_messages(difference, new_version_id)
+
+			await summary.make_summary_messages(
+				version_diff=version_diff,
+				mappings_diff=mappings_diff,
+				assets_diff=assets_diff,
+				downloadable_assets_diff=downloadable_assets_diff,
+				lang_diff=lang_diff
+			)
+			
 asyncio.ensure_future(main())
 server.run()

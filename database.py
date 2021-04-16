@@ -48,6 +48,7 @@ async def get_version():
 	})
 	return data['data']
 
+
 async def update_version(new_data):
 	await data_coll.update_one({
 		'_id': 'version'
@@ -56,6 +57,24 @@ async def update_version(new_data):
 			'data': new_data
 		}
 	})
+
+
+async def get_newest_blog_title() -> str:
+	data = await data_coll.find_one({
+		'_id': 'blog-title'
+	})
+	return data['data']
+
+
+async def update_newest_blog_title(new_title: str):
+	await data_coll.update_one({
+		'_id': 'blog-title'
+	}, {
+		'$set': {
+			'data': new_title
+		}
+	})
+
 
 async def get_asset_hashes():
 	data = await data_coll.find_one({
