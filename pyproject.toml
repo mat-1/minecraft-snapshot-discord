@@ -13,4 +13,5 @@ aiohttp = "^3.6"
 dnspython = "^1.16"
 motor = "^2.1"
 python = "^3.8"
+python-dotenv = "^0.15.0"
 [tool.poetry.dev-dependencies]

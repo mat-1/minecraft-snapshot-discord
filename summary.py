@@ -45,7 +45,7 @@ def parse_language(lang_diff):
 				'weight': category_weight
 			})
 
-	new_features_sorted = sorted(new_features_unsorted, key=lambda f: f['weight'], reversed=True)
+	new_features_sorted = sorted(new_features_unsorted, key=lambda f: f['weight'], reverse=True)
 
 	return new_features_sorted
 		

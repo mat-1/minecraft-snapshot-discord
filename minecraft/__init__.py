@@ -272,6 +272,12 @@ class MinecraftDownloadableAssets():
 	def diff(self, old):
 		return DownloadableAssetsDiff(new=self, old=old)
 
+	def get_assets_dict(self):
+		data = {}
+		for asset in self.assets:
+			data[asset.filename] = asset.hash
+		return data
+
 
 	@staticmethod
 	def downloadable_assets_from_objects(data):
@@ -292,12 +298,6 @@ class MinecraftDownloadableAssets():
 			else:
 				pass
 		return MinecraftDownloadableAssets(assets=assets)
-
-	def get_assets_dict(self):
-		data = {}
-		for asset in self.assets:
-			data[asset.filename] = asset.hash
-		return data
 
 	@staticmethod
 	async def downloadable_assets_from_url(url):
@@ -392,6 +392,13 @@ class MinecraftAssets():
 		self.textures = list(textures)
 		self.lang = lang
 		self._i = -1
+
+
+	def get_assets_dict(self):
+		data = {}
+		for asset in self.textures:
+			data[asset.filename] = asset.hash
+		return data
 
 	def __repr__(self):
 		return f'<{len(self.textures)} textures>'
@@ -668,9 +675,7 @@ class MinecraftVersion():
 		return await MinecraftPackages.packages_from_url(self.packages_url)
 
 async def get_previous_version() -> MinecraftVersion:
-	previous_version_id = '20w48a'
-
-	previous_version_data = await MinecraftVersion.version_from_id(previous_version_id)
+	previous_version_data = await MinecraftVersion.version_from_id()
 	return previous_version_data
 
 async def diff_versions(old_version_id, new_version_id, old_downloadable_assets):
